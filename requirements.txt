@@ -1,0 +1,14 @@
+# Core packages
+pandas
+numpy
+matplotlib
+seaborn
+
+# Association Rule Mining
+mlxtend
+
+# Graph Visualization
+networkx
+
+# Notebook
+jupyter
