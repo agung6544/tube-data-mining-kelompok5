@@ -9,9 +9,9 @@
 Layout produk di supermarket sangat mempengaruhi pengalaman belanja pelanggan dan penjualan produk.Menggunakan algoritma Association Rule Mining untuk menemukan pola pembelian bersama yang sering terjadi, untuk optimasi layout supermarket
 
 ## Sumber Dataset
-Sumber: Kaggle
-Format: CSV
-Jumlah data: xxxx entri
+- Sumber: Kaggle
+- Format: CSV
+- Jumlah data: xxxx entri
 
 ## Langkah Preprocessing
 - Filter produk
