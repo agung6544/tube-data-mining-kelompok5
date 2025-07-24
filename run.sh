@@ -10,4 +10,4 @@ fi
 
 # Jalankan pipeline utama
 echo " Menjalankan src/main.py..."
-python3 src/main.py
+python src/main.py
