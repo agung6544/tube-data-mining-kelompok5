@@ -1,41 +1,55 @@
-# src/main.py
-
-"""
-Main pipeline for Data Mining project.
-Steps:
-1. Load raw data
-2. Simple preprocessing
-3. Train model
-4. Evaluate model
-"""
-
-from data_loader import load_raw_data
-from model import train_model, evaluate_model
-from utils import print_classification_report, plot_confusion_matrix
+from data_loader import load_processed_data
+from model import encode_transactions, generate_frequent_itemsets, generate_association_rules
+from utils import filter_rules_1to1, calculate_tcr, filter_arc, plot_tcr_bar, plot_arc_graph, plot_product_layout
 
 def main():
-    # 1. Load data
-    df = load_raw_data("data/raw/sample.csv")  # Ganti sesuai nama file dataset
-    
-    if df is None:
-        print("Dataset tidak ditemukan.")
+    # Load data dari folder data/processed/
+    df_processed = load_processed_data('transactions.csv')
+
+    if df_processed is None:
         return
 
-    # 2. Preprocessing sederhana
-    df = df.dropna()
-    if "target" not in df.columns:
-        print("Kolom 'target' tidak ditemukan dalam dataset.")
-        return
+    # Pisahkan item dalam transaksi berdasarkan koma
+    transactions = df_processed['Transaction'].apply(lambda x: x.split(','))
 
-    X = df.drop("target", axis=1)
-    y = df["target"]
+    # One-hot encoding
+    df_encoded = encode_transactions(transactions)
 
-    # 3. Train & evaluate model
-    model, y_test, y_pred = train_model(X, y)
+    # Apriori untuk frequent itemsets
+    frequent_itemsets = generate_frequent_itemsets(df_encoded, min_support=0.002)
+    print("✅ Frequent Itemsets:")
+    print(frequent_itemsets)
 
-    # 4. Evaluation
-    print_classification_report(y_test, y_pred)
-    plot_confusion_matrix(y_test, y_pred)
+    # Generate association rules
+    rules = generate_association_rules(frequent_itemsets, min_confidence=0.05)
+
+    # Tampilkan aturan asosiasi (top 10)
+    print("\n🔎 Aturan Asosiasi (tanpa filter panjang):")
+    print(rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']].head(10))
+    print(f"📌 Jumlah total aturan: {len(rules)}")
+
+    # === TAMBAHAN VISUALISASI MULAI DARI SINI ===
+
+    # Filter aturan 1→1
+    rules_1to1 = filter_rules_1to1(rules)
+    print("\n📌 Aturan 1 item → 1 item:")
+    print(rules_1to1[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+    print(f"Jumlah aturan 1→1 ditemukan: {len(rules_1to1)}")
+
+    # Hitung TCR
+    tcr = calculate_tcr(rules_1to1)
+    print("\n📊 Total Contribution Ratio (TCR):")
+    print(tcr)
+
+    # Filter ARC
+    arc_chart = filter_arc(rules_1to1)
+    print("\n📐 Adjacency Relation Chart (ARC):")
+    print(arc_chart)
+
+    # Visualisasi
+    plot_tcr_bar(tcr)
+    plot_arc_graph(arc_chart)
+    plot_product_layout(tcr, arc_chart)
 
 if __name__ == "__main__":
     main()
