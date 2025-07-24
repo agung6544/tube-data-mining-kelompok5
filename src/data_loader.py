@@ -5,47 +5,54 @@ data_loader.py
 
 Module ini digunakan untuk memuat dataset dari direktori `data/` baik dari folder raw maupun processed.
 """
-
 import pandas as pd
 import os
 
-# Folder path relatif dari root repository
-RAW_DATA_PATH = "data/raw/"
-PROCESSED_DATA_PATH = "data/processed/"
-
-def load_csv(filename, processed=False):
+def load_raw_data(filename, folder='../data/raw/'):
     """
-    Memuat file CSV dari folder data.
+    Memuat data CSV dari folder data/raw/.
     
     Parameters:
-        filename (str): Nama file (contoh: 'data.csv')
-        processed (bool): Jika True, load dari folder processed, else dari raw.
-    
+        filename (str): Nama file, contoh: 'Retail_Transactions_Dataset.csv'
+        folder (str): Lokasi folder relatif (default: data/raw)
+        
     Returns:
-        pd.DataFrame: Dataframe dari file yang dimuat
+        pd.DataFrame: DataFrame hasil pembacaan file
     """
-    folder = PROCESSED_DATA_PATH if processed else RAW_DATA_PATH
-    file_path = os.path.join(folder, filename)
-    
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
-    
-    return pd.read_csv(file_path)
+    path = os.path.join(folder, filename)
+    try:
+        return pd.read_csv(path)
+    except FileNotFoundError:
+        print(f"File '{path}' tidak ditemukan.")
+        return None
 
-def preview_data(df, rows=5):
+def load_processed_data(filename, folder='../data/processed/'):
     """
-    Menampilkan preview awal dari dataframe
+    Memuat data CSV dari folder data/processed/.
     
     Parameters:
-        df (pd.DataFrame): Dataframe yang akan dipreview
-        rows (int): Jumlah baris untuk ditampilkan
+        filename (str): Nama file, contoh: 'transactions.csv'
+        folder (str): Lokasi folder relatif (default: data/processed)
+        
+    Returns:
+        pd.DataFrame: DataFrame hasil pembacaan file
     """
-    print(df.head(rows))
-
-# Contoh pemanggilan (hapus saat produksi):
-if __name__ == "__main__":
+    path = os.path.join(folder, filename)
     try:
-        df = load_csv("your_dataset.csv")  # ganti nama file sesuai kebutuhan
-        preview_data(df)
-    except Exception as e:
-        print(e)
+        return pd.read_csv(path)
+    except FileNotFoundError:
+        print(f"File '{path}' tidak ditemukan.")
+        return None
+
+# Contoh penggunaan
+if __name__ == "__main__":
+    df_raw = load_raw_data('Retail_Transactions_Dataset.csv')
+    df_processed = load_processed_data('transactions.csv')
+    
+    if df_raw is not None:
+        print("Raw data preview:")
+        print(df_raw.head())
+
+    if df_processed is not None:
+        print("\nProcessed data preview:")
+        print(df_processed.head())
